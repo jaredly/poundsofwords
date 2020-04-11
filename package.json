@@ -11,5 +11,10 @@
     "react-hot-loader": "^4.12.20",
     "react-router": "5",
     "react-router-dom": "^5.1.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.0.0-0",
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/preset-flow": "^7.9.0"
   }
 }

@@ -54,7 +54,16 @@ export default class App extends Component {
                         </div>
                         <Switch>
                             <Route path="/settings/" component={Settings} />
-                            <Route path="/edit/:id/:name" component={Editor} />
+                            <Route
+                                path="/edit/:id/:name"
+                                component={(props) => (
+                                    <Editor
+                                        {...props}
+                                        db={this.props.db}
+                                        user={this.props.user}
+                                    />
+                                )}
+                            />
                             <Route
                                 path="/"
                                 component={(props) => (

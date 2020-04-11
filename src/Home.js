@@ -8,6 +8,8 @@ import { StyleSheet, css } from 'aphrodite';
 import { input, button } from './styles';
 import stateful from './stateful';
 
+import type { Entry } from './types';
+
 const genId = () => Math.random().toString(36).slice(2);
 
 type Props = {
@@ -24,7 +26,7 @@ type State = {
     entries: {
         [key: string]: {
             loading: boolean,
-            items: Array<{ title: string, id: string }>,
+            items: Array<Entry>,
         },
     },
 };
@@ -115,18 +117,19 @@ class Home extends Component<Props, State> {
         const id = genId();
         const title =
             'Entry on ' + new Date().toLocaleDateString().replace(/\//g, '.');
+        const newEntry: Entry = {
+            id,
+            folder: folderId,
+            title,
+            time: 5,
+            speed: 'normal',
+            text: '',
+            running: false,
+        };
         await this.props.db
             .collection(`entries/${this.props.user.uid}/basic`)
             .doc(id)
-            .set({
-                id,
-                folder: folderId,
-                title,
-                time: 5,
-                speed: 'normal',
-                text: '',
-                running: false,
-            });
+            .set(newEntry);
         this.props.history.push(`/edit/${id}/${encodeURIComponent(title)}/`);
     }
 
