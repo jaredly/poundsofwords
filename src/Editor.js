@@ -1,7 +1,7 @@
 // @flow
 import React, { Component } from 'react';
 
-import { Link, browserHistory } from 'react-router';
+import { useHistory } from 'react-router-dom';
 import { StyleSheet, css } from 'aphrodite';
 import { input, button, bigButton } from './styles';
 import stateful from './stateful';
@@ -47,6 +47,7 @@ type State = {
 
 const Loader = (props: Props) => {
     const [entry, setEntry] = React.useState(null);
+    const history = useHistory();
     React.useEffect(() => {
         props.db
             .collection(`entries/${props.user.uid}/basic`)
@@ -59,7 +60,7 @@ const Loader = (props: Props) => {
     }, [props.match.params.id]);
 
     if (entry) {
-        return <Editor {...props} entry={entry} />;
+        return <Editor {...props} entry={entry} history={history} />;
     } else {
         return <div>Loading entry...</div>;
     }
@@ -435,7 +436,7 @@ class Editor extends Component<InnerProps, State> {
         return (
             <div className={css(styles.container)}>
                 <div
-                    onClick={() => browserHistory.push('/')}
+                    onClick={() => this.props.history.push('/')}
                     className={css(styles.goHome)}
                 >
                     Go home

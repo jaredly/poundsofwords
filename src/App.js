@@ -22,9 +22,9 @@ export default class App extends Component {
                     <div style={{ flex: 1 }}>
                         <div className={css(styles.floatingButtons)}>
                             <div className={css(styles.userName)}>
-                                {user.username}
+                                {user.email}
                             </div>
-                            <Switch>
+                            {/* <Switch>
                                 <Route path="/settings/">
                                     <Link
                                         to="/"
@@ -41,7 +41,7 @@ export default class App extends Component {
                                         Settings
                                     </Link>
                                 </Route>
-                            </Switch>
+                            </Switch> */}
                             <div
                                 onClick={() => {
                                     firebase.auth().signOut();
@@ -53,7 +53,7 @@ export default class App extends Component {
                             </div>
                         </div>
                         <Switch>
-                            <Route path="/settings/" component={Settings} />
+                            {/* <Route path="/settings/" component={Settings} /> */}
                             <Route
                                 path="/edit/:id/:name"
                                 component={(props) => (
