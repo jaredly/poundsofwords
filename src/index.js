@@ -34,7 +34,11 @@ const runApp = () => {
     console.log('render');
     ReactDOM.render(
         <AppContainer>
-            <App user={auth.currentUser} db={firebase.firestore()} />
+            <App
+                user={auth.currentUser}
+                auth={auth}
+                db={firebase.firestore()}
+            />
         </AppContainer>,
         rootEl,
     );
@@ -68,9 +72,9 @@ const doLogin = () => {
         ],
     };
 
-    if (ui.isPendingRedirect()) {
-        ui.start('#firebaseui-auth-container', uiConfig);
-    }
+    // if (ui.isPendingRedirect()) {
+    ui.start('#firebaseui-auth-container', uiConfig);
+    // }
 };
 
 // ui.start('#firebaseui-auth-container', uiConfig);
