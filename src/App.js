@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Home from './Home';
 import Editor from './Editor';
 
-import { BrowserRouter as Router, Switch, Route, Link } from 'react-router';
+import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
 import { StyleSheet, css } from 'aphrodite';
 import config from '../config';
 import Settings from './Settings';

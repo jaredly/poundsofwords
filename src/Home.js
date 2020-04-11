@@ -2,20 +2,23 @@
 import 'regenerator-runtime';
 import React, { Component } from 'react';
 
-import { Link, browserHistory } from 'react-router';
+import { Link, useHistory } from 'react-router-dom';
 import { StyleSheet, css } from 'aphrodite';
 
 import { input, button } from './styles';
 import stateful from './stateful';
 
+const genId = () => Math.random().toString(36).slice(2);
+
 type Props = {
     user: { uid: string },
     db: any,
+    history: any,
 };
 
 type State = {
     loading: boolean,
-    folders: Array<{ title: string, id: string }>,
+    folders: Array<{ title: string, id: string, createdDate: number }>,
     folderName: string,
     openFolder: ?string,
     entries: {
@@ -26,8 +29,13 @@ type State = {
     },
 };
 
-export default class Home extends Component<Props, State> {
-    constructor(props: { user: any, db: any }) {
+export default (props: Props) => {
+    const history = useHistory();
+    return <Home {...props} history={history} />;
+};
+
+class Home extends Component<Props, State> {
+    constructor(props: Props) {
         super(props);
         this.state = {
             loading: true,
@@ -44,31 +52,36 @@ export default class Home extends Component<Props, State> {
         });
     }
 
-    createFolder() {
-        // this.setState({
-        //     loading: true,
-        //     folderName: '',
-        //     // entries: 0,
-        //     modified: Date.now(),
-        // });
-        // Kinvey.DataStore.save('folders', {
-        //     title: this.state.folderName,
-        //     created: Date.now(),
-        // }).then(() => this.load());
+    async createFolder() {
+        this.setState({
+            loading: true,
+            folderName: '',
+        });
+        const id = genId();
+        await this.props.db
+            .collection(`folders/${this.props.user.uid}/basic`)
+            .doc(id)
+            .set({
+                id,
+                title: this.state.folderName,
+                created: Date.now(),
+            });
+        await this.load();
     }
 
     async load() {
         console.log('loading');
         const col = await this.props.db
-            .collection(`folders/${this.props.user.uid}`)
+            .collection(`folders/${this.props.user.uid}/basic`)
             .get();
+        // console.log(col);
         this.setState({
             loading: false,
-            folders: col.map((folder) => folder.data()),
+            folders: col.docs.map((folder) => folder.data()),
         });
     }
 
-    openFolder(folder: { id: string }) {
+    async openFolder(folder: { id: string }) {
         if (folder.id === this.state.openFolder) {
             return this.setState({ openFolder: null });
         }
@@ -83,47 +96,38 @@ export default class Home extends Component<Props, State> {
                 },
             },
         });
-        // const query = new Kinvey.Query();
-        // query.equalTo('folder', folder.id);
-        // const promise = Kinvey.DataStore.find('entries', query);
-        // promise.then(
-        //     (entries) => {
-        //         this.setState({
-        //             entries: {
-        //                 ...this.state.entries,
-        //                 [folder.id]: {
-        //                     loading: false,
-        //                     items: entries || [],
-        //                 },
-        //             },
-        //         });
-        //     },
-        //     (err) => {
-        //         console.log('error!', err);
-        //     },
-        // );
+        const items = await this.props.db
+            .collection(`entries/${this.props.user.uid}/basic`)
+            .where('folder', '==', folder.id)
+            .get();
+        this.setState({
+            entries: {
+                ...this.state.entries,
+                [folder.id]: {
+                    loading: false,
+                    items: items.docs.map((item) => item.data()),
+                },
+            },
+        });
     }
 
-    start(folderId: string) {
-        // Kinvey.DataStore.save('entries', {
-        //     folder: folderId,
-        //     title:
-        //         'Entry on ' +
-        //         new Date().toLocaleDateString().replace(/\//g, '.'),
-        //     time: 5,
-        //     speed: 'normal',
-        //     text: '',
-        //     running: false,
-        // }).then(
-        //     (entry) => {
-        //         browserHistory.push(
-        //             `/edit/${entry.id}/${encodeURIComponent(entry.title)}/`,
-        //         );
-        //     },
-        //     (err) => {
-        //         console.error('failed to save', err);
-        //     },
-        // );
+    async start(folderId: string) {
+        const id = genId();
+        const title =
+            'Entry on ' + new Date().toLocaleDateString().replace(/\//g, '.');
+        await this.props.db
+            .collection(`entries/${this.props.user.uid}/basic`)
+            .doc(id)
+            .set({
+                id,
+                folder: folderId,
+                title,
+                time: 5,
+                speed: 'normal',
+                text: '',
+                running: false,
+            });
+        this.props.history.push(`/edit/${id}/${encodeURIComponent(title)}/`);
     }
 
     render() {
@@ -149,7 +153,7 @@ export default class Home extends Component<Props, State> {
                                                 key={entry.id}
                                                 className={css(styles.entry)}
                                                 onClick={() => {
-                                                    browserHistory.push(
+                                                    this.props.history.push(
                                                         `/edit/${
                                                             entry.id
                                                         }/${encodeURIComponent(
