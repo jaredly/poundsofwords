@@ -1,126 +1,76 @@
 import React, { Component } from 'react';
 import Home from './Home';
-import Editor from './Editor'
-import LoggedOutView from './login/LoginPage'
+import Editor from './Editor';
 
-import { IndexRoute, Router, Route, Link, browserHistory } from 'react-router'
+import { BrowserRouter as Router, Switch, Route, Link } from 'react-router';
 import { StyleSheet, css } from 'aphrodite';
-import config from '../config'
+import config from '../config';
 import Settings from './Settings';
-
-const Base = ({location, user, onLogout, children}) => (
-  <div style={{flex: 1}}>
-    <div className={css(styles.floatingButtons)}>
-      <div
-        className={css(styles.userName)}
-      >
-        {user.username}
-      </div>
-      {location.pathname === '/settings/' ?
-        <div
-          onClick={() => browserHistory.push('/')}
-          className={css(styles.settings)}
-        >
-          Home
-        </div> :
-        <div
-          onClick={() => {
-            browserHistory.push('/settings/');
-          }}
-          className={css(styles.settings)}
-        >
-          Settings
-        </div>}
-      <div
-        onClick={() => {
-          Kinvey.User.logout()
-          onLogout()
-        }}
-        className={css(styles.logOut)}
-      >
-        Sign out
-      </div>
-    </div>
-    {children}
-  </div>
-);
-
-const waitForKinvey = (cb) => {
-  if (window.Kinvey) return cb()
-  const iv = setInterval(() => {
-    if (!window.Kinvey) return
-    clearInterval(iv)
-    cb();
-  }, 100);
-}
-
-const kinveyLoad = () => {
-  return new Promise((res, rej) => {
-    waitForKinvey(() => {
-      window.Kinvey.init({
-        appKey: config.appKey,
-        appSecret: config.appSecret,
-      }).then(res, rej);
-    });
-  });
-}
+import * as firebase from 'firebase/app';
 
 export default class App extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      user: null,
-      loading: true,
-    }
-  }
-
-  componentWillMount() {
-    kinveyLoad().then(user => {
-      console.log('user', user);
-      this.setState({user, loading: false})
-    });
-  }
-
-  onLogout() {
-    this.setState({user: null})
-  }
-
-  render() {
-    if (this.state.loading) {
-      return <div>Loading...</div>
-    }
-    if (!this.state.user) {
-      return <LoggedOutView
-        gotUser={user => this.setState({user})}
-      />
+    onLogout() {
+        this.props.auth.signOut();
+        window.location.reload();
     }
 
-    return (
-      <div style={{flex: 1, overflow: 'auto'}}>
-        <Router history={browserHistory}>
-          <Route path="/" component={
-            props => <Base
-              user={this.state.user}
-              onLogout={() => this.onLogout()}
-              {...props}
-            />
-          }>
-            <IndexRoute component={
-              props => <Home user={this.state.user} {...props}/>
-            }/>
-            <Route
-              path="/settings/"
-              component={Settings}
-            />
-            <Route
-              path="/edit/:id/:name"
-              component={Editor}
-            />
-          </Route>
-        </Router>
-      </div>
-    );
-  }
+    render() {
+        const { user } = this.props;
+        return (
+            <div style={{ flex: 1, overflow: 'auto' }}>
+                <Router>
+                    <div style={{ flex: 1 }}>
+                        <div className={css(styles.floatingButtons)}>
+                            <div className={css(styles.userName)}>
+                                {user.username}
+                            </div>
+                            <Switch>
+                                <Route path="/settings/">
+                                    <Link
+                                        to="/"
+                                        className={css(styles.settings)}
+                                    >
+                                        Home
+                                    </Link>
+                                </Route>
+                                <Route path="/">
+                                    <Link
+                                        to="/settings/"
+                                        className={css(styles.settings)}
+                                    >
+                                        Settings
+                                    </Link>
+                                </Route>
+                            </Switch>
+                            <div
+                                onClick={() => {
+                                    firebase.auth().signOut();
+                                    this.onLogout();
+                                }}
+                                className={css(styles.logOut)}
+                            >
+                                Sign out
+                            </div>
+                        </div>
+                        <Switch>
+                            <Route path="/settings/" component={Settings} />
+                            <Route path="/edit/:id/:name" component={Editor} />
+                            <Route
+                                path="/"
+                                component={(props) => (
+                                    <Home
+                                        user={this.props.user}
+                                        db={this.props.db}
+                                        {...props}
+                                    />
+                                )}
+                            />
+                        </Switch>
+                    </div>
+                </Router>
+            </div>
+        );
+    }
 }
 
 // <Route
@@ -131,29 +81,27 @@ const button = {
     padding: '10px 15px',
     cursor: 'pointer',
     ':hover': {
-      backgroundColor: '#eee',
+        backgroundColor: '#eee',
     },
-}
+};
 
 const styles = StyleSheet.create({
-  floatingButtons: {
-    flexDirection: 'row',
-    position: 'absolute',
-    top: 5,
-    right: 5,
-  },
-  logOut: {
-    ...button,
-  },
-  settings: {
-    ...button,
-  },
-  userName: {
-    padding: '10px 5px',
-  }
+    floatingButtons: {
+        flexDirection: 'row',
+        position: 'absolute',
+        top: 5,
+        right: 5,
+    },
+    logOut: {
+        ...button,
+    },
+    settings: {
+        ...button,
+    },
+    userName: {
+        padding: '10px 5px',
+    },
 });
-
-
 
 /** WEBPACK FOOTER **
  ** ./src/App.js

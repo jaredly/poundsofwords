@@ -2,10 +2,18 @@
 <html>
     <head>
         <link rel="stylesheet" href="/clear.css" />
+        <link
+            rel="stylesheet"
+            href="/node_modules/firebaseui/dist/firebaseui.css"
+        />
         <title>Write So Fast</title>
     </head>
     <body>
+        <div id="loader" style="display: none;">
+            Loading user...
+        </div>
         <div id="root"></div>
+        <div id="firebaseui-auth-container"></div>
         <script src="./src/index.js"></script>
     </body>
 </html>
