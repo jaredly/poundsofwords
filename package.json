@@ -1,20 +1,24 @@
 {
-  "dependencies": {
-    "@types/react": "^15.0.0 || ^16.0.0",
-    "aphrodite": "^2.4.0",
-    "firebase": "^7.14.0",
-    "firebaseui": "^4.5.0",
-    "flow-bin": "^0.122.0",
-    "parcel": "^1.12.4",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
-    "react-hot-loader": "^4.12.20",
-    "react-router": "5",
-    "react-router-dom": "^5.1.2"
-  },
-  "devDependencies": {
-    "@babel/core": "^7.0.0-0",
-    "@babel/plugin-proposal-class-properties": "^7.8.3",
-    "@babel/preset-flow": "^7.9.0"
-  }
+    "scripts": {
+        "build": "parcel build index.html --no-source-maps",
+        "deploy": "surge dist poundsofwords.surge.sh"
+    },
+    "dependencies": {
+        "@types/react": "^15.0.0 || ^16.0.0",
+        "aphrodite": "^2.4.0",
+        "firebase": "^7.14.0",
+        "firebaseui": "^4.5.0",
+        "flow-bin": "^0.122.0",
+        "parcel": "^1.12.4",
+        "react": "^16.13.1",
+        "react-dom": "^16.13.1",
+        "react-hot-loader": "^4.12.20",
+        "react-router": "5",
+        "react-router-dom": "^5.1.2"
+    },
+    "devDependencies": {
+        "@babel/core": "^7.0.0-0",
+        "@babel/plugin-proposal-class-properties": "^7.8.3",
+        "@babel/preset-flow": "^7.9.0"
+    }
 }
